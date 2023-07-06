@@ -37,8 +37,9 @@ for event in w.stream(api.list_namespaced_custom_object, group="kubevirt.io", ve
                 time.sleep(1)
                 try:
                     vmi = api.get_namespaced_custom_object(group="kubevirt.io", version="v1", plural="virtualmachineinstances", namespace=namespace, name=name)
-                except:
                     vmi_exists = True
+                except:
+                    pass
 
             vm_domain = vm['spec']['template']['spec']['domain'] 
             vmi_domain = vmi['spec']['domain']
@@ -88,7 +89,8 @@ for event in w.stream(api.list_namespaced_custom_object, group="kubevirt.io", ve
                 time.sleep(1)
                 try:
                     vmi = api.get_namespaced_custom_object(group="kubevirt.io", version="v1", plural="virtualmachineinstances", namespace=namespace, name=name)
-                except:
                     vmi_exists = True
+                except:
+                    pass
 
 
