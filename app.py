@@ -20,11 +20,10 @@ configuration.api_key_prefix['authorization'] = 'Bearer'
 configuration.ssl_ca_cert = ca_cert
 
 
-configuration.verify_ssl = True # Set to False if you want to skip SSL verification
+configuration.verify_ssl = True
 
 kube_client = client.ApiClient(configuration)
 
-# List the virtual machines
 api = client.CustomObjectsApi(kube_client)
 w = watch.Watch()
 for event in w.stream(api.list_namespaced_custom_object, group="kubevirt.io", version="v1", plural="virtualmachines", namespace=namespace):
@@ -69,28 +68,30 @@ for event in w.stream(api.list_namespaced_custom_object, group="kubevirt.io", ve
                         vmi_exists = False
 
         if vm['spec']['running'] == False and 'trackvm' in vm['metadata']['annotations'] and vm['metadata']['annotations']['trackvm'] == "stop_triggered":
-            patch = [
-                {"op": "replace", "path": "/spec/running", "value": True},
-                {"op": "remove", "path": "/metadata/annotations/trackvm"}
-            ]
-            api.api_client.set_default_header('Content-Type', 'application/json-patch+json')
-            print("Starting vm " + name)
-            api.patch_namespaced_custom_object(
-                group="kubevirt.io",
-                version="v1",
-                plural="virtualmachines",
-                name=name,
-                namespace=namespace,
-                body=patch,
-            )
+            try:
+                vmi = api.get_namespaced_custom_object(group="kubevirt.io", version="v1", plural="virtualmachineinstances", namespace=namespace, name=name)
+            except:
+                patch = [
+                    {"op": "replace", "path": "/spec/running", "value": True},
+                    {"op": "remove", "path": "/metadata/annotations/trackvm"}
+                ]
+                api.api_client.set_default_header('Content-Type', 'application/json-patch+json')
+                print("Starting vm " + name)
+                api.patch_namespaced_custom_object(
+                    group="kubevirt.io",
+                    version="v1",
+                    plural="virtualmachines",
+                    name=name,
+                    namespace=namespace,
+                    body=patch,
+                )
 
-            vmi_exists = False
-            while not vmi_exists:
-                time.sleep(1)
-                try:
-                    vmi = api.get_namespaced_custom_object(group="kubevirt.io", version="v1", plural="virtualmachineinstances", namespace=namespace, name=name)
-                    vmi_exists = True
-                except:
-                    pass
-
+                vmi_exists = False
+                while not vmi_exists:
+                    time.sleep(1)
+                    try:
+                        vmi = api.get_namespaced_custom_object(group="kubevirt.io", version="v1", plural="virtualmachineinstances", namespace=namespace, name=name)
+                        vmi_exists = True
+                    except:
+                        pass
 
