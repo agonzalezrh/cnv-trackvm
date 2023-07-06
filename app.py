@@ -32,7 +32,14 @@ for event in w.stream(api.list_namespaced_custom_object, group="kubevirt.io", ve
         vm = event['object']
         name = vm['metadata']['name']
         if vm['spec']['running'] == True and 'trackvm' not in vm['metadata']['annotations']:
-            vmi = api.get_namespaced_custom_object(group="kubevirt.io", version="v1", plural="virtualmachineinstances", namespace=namespace, name=name)
+            vmi_exists = False
+            while not vmi_exists:
+                time.sleep(1)
+                try:
+                    vmi = api.get_namespaced_custom_object(group="kubevirt.io", version="v1", plural="virtualmachineinstances", namespace=namespace, name=name)
+                except:
+                    vmi_exists = True
+
             vm_domain = vm['spec']['template']['spec']['domain'] 
             vmi_domain = vmi['spec']['domain']
             if (vm_domain['cpu']['cores'] != vmi_domain['cpu']['cores']) or  (vm_domain['resources']['requests']['memory'] != vmi_domain['resources']['requests']['memory']):
@@ -76,6 +83,7 @@ for event in w.stream(api.list_namespaced_custom_object, group="kubevirt.io", ve
                 body=patch,
             )
 
+            vmi_exists = False
             while not vmi_exists:
                 time.sleep(1)
                 try:
