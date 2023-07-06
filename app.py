@@ -14,7 +14,7 @@ configuration.host = host
 configuration.api_key['authorization'] = token
 configuration.api_key_prefix['authorization'] = 'Bearer'
 
-configuration.verify_ssl = True :# Set to False if you want to skip SSL verification
+configuration.verify_ssl = True # Set to False if you want to skip SSL verification
 
 kube_client = client.ApiClient(configuration)
 
