@@ -6,7 +6,7 @@ import json, os
 kubernetes_host = os.getenv("KUBERNETES_SERVICE_HOST")
 kubernetes_port = os.getenv("KUBERNETES_SERVICE_PORT")
 
-internal_endpoint = f"http://{kubernetes_host}:{kubernetes_port}"
+internal_endpoint = f"https://{kubernetes_host}:{kubernetes_port}"
 token = open("/run/secrets/kubernetes.io/serviceaccount/token").read()
 namespace = open("/run/secrets/kubernetes.io/serviceaccount/namespace").read()
 
@@ -17,7 +17,7 @@ configuration.host = internal_endpoint
 configuration.api_key['authorization'] = token
 configuration.api_key_prefix['authorization'] = 'Bearer'
 
-configuration.verify_ssl = True # Set to False if you want to skip SSL verification
+configuration.verify_ssl = False # Set to False if you want to skip SSL verification
 
 kube_client = client.ApiClient(configuration)
 
