@@ -66,16 +66,21 @@ for event in w.stream(api.list_namespaced_custom_object, group="kubevirt.io", ve
                 {"op": "remove", "path": "/metadata/annotations/trackvm"}
             ]
             api.api_client.set_default_header('Content-Type', 'application/json-patch+json')
-            print("Start vm " + name)
-            try:
-                api.patch_namespaced_custom_object(
-                    group="kubevirt.io",
-                    version="v1",
-                    plural="virtualmachines",
-                    name=name,
-                    namespace=namespace,
-                    body=patch,
-                )
-            except:
-                print("Error starting the VM " + name)
-     
+            print("Starting vm " + name)
+            api.patch_namespaced_custom_object(
+                group="kubevirt.io",
+                version="v1",
+                plural="virtualmachines",
+                name=name,
+                namespace=namespace,
+                body=patch,
+            )
+
+            while not vmi_exists:
+                time.sleep(1)
+                try:
+                    vmi = api.get_namespaced_custom_object(group="kubevirt.io", version="v1", plural="virtualmachineinstances", namespace=namespace, name=name)
+                except:
+                    vmi_exists = True
+
+
