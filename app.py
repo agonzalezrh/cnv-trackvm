@@ -17,7 +17,7 @@ configuration.host = internal_endpoint
 configuration.api_key['authorization'] = token
 configuration.api_key_prefix['authorization'] = 'Bearer'
 
-configuration.verify_ssl = False # Set to False if you want to skip SSL verification
+configuration.verify_ssl = True # Set to False if you want to skip SSL verification
 
 kube_client = client.ApiClient(configuration)
 
@@ -28,7 +28,7 @@ for event in w.stream(api.list_namespaced_custom_object, group="kubevirt.io", ve
     if event['type'] == 'MODIFIED':
         vm = event['object']
         name = vm['metadata']['name']
-        if vm['spec']['running'] == True:
+        if vm['spec']['running'] == True and 'trackvm' not in vm['metadata']['annotations']:
             vmi = api.get_namespaced_custom_object(group="kubevirt.io", version="v1", plural="virtualmachineinstances", namespace=namespace, name=name)
             vm_domain = vm['spec']['template']['spec']['domain'] 
             vmi_domain = vmi['spec']['domain']
