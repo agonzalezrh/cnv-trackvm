@@ -9,6 +9,7 @@ kubernetes_port = os.getenv("KUBERNETES_SERVICE_PORT")
 
 internal_endpoint = f"http://{kubernetes_host}:{kubernetes_port}"
 token = open("/run/secrets/kubernetes.io/serviceaccount/token").read()
+namespace = open("/run/secrets/kubernetes.io/serviceaccount/namespace").read()
 
 
 # Create a Kubernetes configuration object
@@ -24,11 +25,10 @@ kube_client = client.ApiClient(configuration)
 # List the virtual machines
 api = client.CustomObjectsApi(kube_client)
 w = watch.Watch()
-for event in w.stream(api.list_cluster_custom_object, group="kubevirt.io", version="v1", plural="virtualmachines"):
+for event in w.stream(api.list_namespaced_custom_object, group="kubevirt.io", version="v1", plural="virtualmachines", namespace=namespace):
     if event['type'] == 'MODIFIED':
         vm = event['object']
         name = vm['metadata']['name']
-        namespace = vm['metadata']['namespace']
         if vm['spec']['running'] == True:
             vmi = api.get_namespaced_custom_object(group="kubevirt.io", version="v1", plural="virtualmachineinstances", namespace=namespace, name=name)
             vm_domain = vm['spec']['template']['spec']['domain'] 
