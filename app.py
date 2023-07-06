@@ -4,13 +4,16 @@ from kubernetes import client, config, watch
 import json
 #from kubernetes.client import V1ObjectMeta, V1PodSpec, V1Pod, V1Container
 
-host = "https://api.agonzalez3.498b.p1.openshiftapps.com:6443"
-token = "sha256~pvKhBi4wBmu6e8nVSSm_7cxU6OIicm2Ve_Imd6ualjI"
+kubernetes_host = os.getenv("KUBERNETES_SERVICE_HOST")
+kubernetes_port = os.getenv("KUBERNETES_SERVICE_PORT")
+
+internal_endpoint = f"http://{kubernetes_host}:{kubernetes_port}"
+token = open("/run/secrets/kubernetes.io/serviceaccount/token").read()
 
 
 # Create a Kubernetes configuration object
 configuration = client.Configuration()
-configuration.host = host
+configuration.host = internal_endpoint
 configuration.api_key['authorization'] = token
 configuration.api_key_prefix['authorization'] = 'Bearer'
 
