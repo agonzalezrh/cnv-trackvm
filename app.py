@@ -1,8 +1,7 @@
 # Alberto Gonzalez <albert.gonzalez@redhat.com> 2023
 
 from kubernetes import client, config, watch
-import json
-#from kubernetes.client import V1ObjectMeta, V1PodSpec, V1Pod, V1Container
+import json, os
 
 kubernetes_host = os.getenv("KUBERNETES_SERVICE_HOST")
 kubernetes_port = os.getenv("KUBERNETES_SERVICE_PORT")
