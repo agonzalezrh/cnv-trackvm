@@ -1,4 +1,4 @@
-# Alberto Gonzalez <albert.gonzalez@redhat.com> 2023
+# Alberto Gonzalez <alberto.gonzalez@redhat.com> 2023
 
 from kubernetes import client, config, watch
 import json, os, time
