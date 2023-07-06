@@ -1,7 +1,7 @@
 # Alberto Gonzalez <albert.gonzalez@redhat.com> 2023
 
 from kubernetes import client, config, watch
-import json, os
+import json, os, time
 
 kubernetes_host = os.getenv("KUBERNETES_SERVICE_HOST")
 kubernetes_port = os.getenv("KUBERNETES_SERVICE_PORT")
@@ -51,6 +51,15 @@ for event in w.stream(api.list_namespaced_custom_object, group="kubevirt.io", ve
                     namespace=namespace,
                     body=patch,
                 )
+                # Wait till the VMI doesnt exist
+                vmi_exists = True
+                while vmi_exists:
+                    time.sleep(1)
+                    try:
+                        vmi = api.get_namespaced_custom_object(group="kubevirt.io", version="v1", plural="virtualmachineinstances", namespace=namespace, name=name)
+                    except:
+                        vmi_exists = False
+
         if vm['spec']['running'] == False and 'trackvm' in vm['metadata']['annotations'] and vm['metadata']['annotations']['trackvm'] == "stop_triggered":
             patch = [
                 {"op": "replace", "path": "/spec/running", "value": True},
