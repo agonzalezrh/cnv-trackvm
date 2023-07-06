@@ -9,7 +9,7 @@ kubernetes_port = os.getenv("KUBERNETES_SERVICE_PORT")
 internal_endpoint = f"https://{kubernetes_host}:{kubernetes_port}"
 token = open("/run/secrets/kubernetes.io/serviceaccount/token").read()
 namespace = open("/run/secrets/kubernetes.io/serviceaccount/namespace").read()
-ca_cert = open("/run/secrets/kubernetes.io/serviceaccount/ca.crt").read()
+ca_cert = "/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 
 
 # Create a Kubernetes configuration object
